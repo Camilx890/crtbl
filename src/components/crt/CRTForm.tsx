@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Info, Plus, Calculator, Truck, FileText } from 'lucide-react';
-import { BLExtractedData, CRTFormData, FreightSection, TransportCompany, DEFAULT_COMPANIES } from '@/types/crt';
+import { BLExtractedData, CRTFormData, FreightSection, TransportCompany, DEFAULT_COMPANIES, CURRENCY_OPTIONS } from '@/types/crt';
 import { formatDateToCRT, generateUniqueId } from '@/utils/dateFormatter';
 import { CompanySelector } from './CompanySelector';
 import { FreightSectionRow } from './FreightSectionRow';
+import { OptionalFieldsSection } from './OptionalFieldsSection';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface CRTFormProps {
   extractedData: BLExtractedData;
@@ -21,14 +29,22 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
     casilla_4_destinatario: extractedData.casilla_4_destinatario || '',
     casilla_11_descripcion: extractedData.casilla_11_descripcion || '',
     casilla_12_peso_bruto: extractedData.casilla_12_peso_bruto || 0,
-    casilla_3_transportador: `${DEFAULT_COMPANIES[0].name}\n${DEFAULT_COMPANIES[0].address}`,
+    casilla_3_transportador: DEFAULT_COMPANIES[0].nombreCompleto,
+    casilla_3_nombre_empresa: DEFAULT_COMPANIES[0].nombre,
     casilla_5_fecha: formatDateToCRT(),
     puerto_carga: 'IQUIQUE',
     casilla_8_aduana_entrega: '',
     casilla_10_transportadores_sucesivos: '',
-    casilla_14_valor_fob: '0,1',
+    casilla_14_moneda: 'USD',
+    casilla_14_monto_fob: 0.1,
     casilla_15_tramos: [{ id: generateUniqueId(), origen: 'IQUIQUE', destino: '', monto: 0 }],
     casilla_15_moneda: 'US$',
+    // Optional fields
+    casilla_13_volumen: undefined,
+    casilla_16_declaracion_valor: undefined,
+    casilla_18_instrucciones: undefined,
+    casilla_19_flete_externo: undefined,
+    casilla_20_reembolso: undefined,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -36,7 +52,8 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      casilla_3_transportador: `${selectedCompany.name}\n${selectedCompany.address}`,
+      casilla_3_transportador: selectedCompany.nombreCompleto,
+      casilla_3_nombre_empresa: selectedCompany.nombre,
     }));
   }, [selectedCompany]);
 
@@ -47,8 +64,12 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
     }
   };
 
+  const handleOptionalFieldChange = (field: string, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   const addFreightSection = () => {
-    if (formData.casilla_15_tramos.length < 3) {
+    if (formData.casilla_15_tramos.length < 4) {
       setFormData(prev => ({
         ...prev,
         casilla_15_tramos: [...prev.casilla_15_tramos, { id: generateUniqueId(), origen: '', destino: '', monto: 0 }],
@@ -208,10 +229,10 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
               <textarea
                 value={formData.casilla_3_transportador}
                 onChange={(e) => updateField('casilla_3_transportador', e.target.value)}
-                rows={2}
+                rows={4}
                 className={`input-field resize-none ${errors.casilla_3_transportador ? 'border-destructive' : ''}`}
               />
-              <p className="helper-text">Auto-llenado según empresa - Se replica en casilla 23</p>
+              <p className="helper-text">Auto-llenado según empresa - Casilla 23 solo usa el nombre</p>
               {errors.casilla_3_transportador && <p className="text-xs text-destructive mt-1">{errors.casilla_3_transportador}</p>}
             </div>
 
@@ -269,17 +290,52 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
 
             <div>
               <label className="label-field">14. Valor FOB</label>
-              <input
-                type="text"
-                value={formData.casilla_14_valor_fob}
-                onChange={(e) => updateField('casilla_14_valor_fob', e.target.value)}
-                placeholder="Ej: 0,1"
-                className="input-field"
-              />
-              <p className="helper-text">Formato: 0,1 (con coma)</p>
+              <div className="flex gap-3">
+                <div className="w-28">
+                  <Select
+                    value={formData.casilla_14_moneda}
+                    onValueChange={(value) => updateField('casilla_14_moneda', value)}
+                  >
+                    <SelectTrigger className="h-12 bg-background">
+                      <SelectValue placeholder="Moneda" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border border-border z-50">
+                      {CURRENCY_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.casilla_14_monto_fob || ''}
+                    onChange={(e) => updateField('casilla_14_monto_fob', parseFloat(e.target.value) || 0)}
+                    placeholder="0.00"
+                    className="input-field"
+                  />
+                </div>
+              </div>
+              <p className="helper-text">Moneda y monto del valor FOB</p>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Optional Fields Section */}
+      <div className="card-elevated p-6">
+        <OptionalFieldsSection
+          volumen={formData.casilla_13_volumen}
+          declaracionValor={formData.casilla_16_declaracion_valor}
+          instrucciones={formData.casilla_18_instrucciones}
+          fleteExterno={formData.casilla_19_flete_externo}
+          reembolso={formData.casilla_20_reembolso}
+          onFieldChange={handleOptionalFieldChange}
+        />
       </div>
 
       {/* Freight Sections */}
@@ -291,11 +347,11 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
             </div>
             <div>
               <h3 className="font-semibold text-foreground">15. Gastos de Flete *</h3>
-              <p className="text-sm text-muted-foreground">Define los tramos del transporte</p>
+              <p className="text-sm text-muted-foreground">Define los tramos del transporte (máximo 4)</p>
             </div>
           </div>
           
-          {formData.casilla_15_tramos.length < 3 && (
+          {formData.casilla_15_tramos.length < 4 && (
             <Button
               type="button"
               variant="outline"

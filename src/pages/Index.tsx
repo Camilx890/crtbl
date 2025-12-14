@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
 import { BLExtractedData, CRTFormData, CRTGenerationResponse } from '@/types/crt';
-import { formatDateToCRT, generateUniqueId } from '@/utils/dateFormatter';
 import { CRTHeader } from '@/components/crt/CRTHeader';
 import { StepIndicator } from '@/components/crt/StepIndicator';
 import { FileUploadZone } from '@/components/crt/FileUploadZone';
@@ -14,6 +13,9 @@ import { Button } from '@/components/ui/button';
 const N8N_WEBHOOK_URL = 'https://n8n-n8n.qenbep.easypanel.host/webhook/extract-bl-crt';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const CRT_PROXY_URL = `${SUPABASE_URL}/functions/v1/crt-proxy`;
+
+// Timeout for BL extraction (30 seconds)
+const EXTRACTION_TIMEOUT = 30000;
 
 export default function Index() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -31,6 +33,12 @@ export default function Index() {
     setIsProcessing(true);
     setProcessingStage('uploading');
 
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, EXTRACTION_TIMEOUT);
+
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -40,8 +48,10 @@ export default function Index() {
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
       setProcessingStage('processing');
 
       if (!response.ok) {
@@ -60,10 +70,18 @@ export default function Index() {
         throw new Error(data.message || 'Error al procesar el BL');
       }
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Error processing BL:', error);
-      toast.error('Error al procesar el BL', {
-        description: error instanceof Error ? error.message : 'Verifica que sea un documento válido.',
-      });
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        toast.error('Tiempo de espera agotado', {
+          description: 'La extracción tardó más de 30 segundos. Intenta con un archivo más pequeño.',
+        });
+      } else {
+        toast.error('Error al procesar el BL', {
+          description: error instanceof Error ? error.message : 'Verifica que sea un documento válido.',
+        });
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -73,6 +91,7 @@ export default function Index() {
     setIsSubmitting(true);
 
     try {
+      // Build payload with all fields including new optional ones
       const payload = {
         casilla_1_remitente: formData.casilla_1_remitente,
         casilla_2_numero_bl: formData.casilla_2_numero_bl,
@@ -80,10 +99,16 @@ export default function Index() {
         casilla_11_descripcion: formData.casilla_11_descripcion,
         casilla_12_peso_bruto: formData.casilla_12_peso_bruto,
         casilla_3_transportador: formData.casilla_3_transportador,
+        casilla_3_nombre_empresa: formData.casilla_3_nombre_empresa,
         casilla_5_fecha: formData.casilla_5_fecha,
         casilla_8_aduana_entrega: formData.casilla_8_aduana_entrega,
         casilla_10_transportadores_sucesivos: formData.casilla_10_transportadores_sucesivos,
-        casilla_14_valor_fob: formData.casilla_14_valor_fob || '0,1',
+        
+        // FOB value with separate currency and amount
+        casilla_14_moneda: formData.casilla_14_moneda || 'USD',
+        casilla_14_monto_fob: formData.casilla_14_monto_fob || 0,
+        
+        // Freight sections (up to 4)
         casilla_15_tramos: formData.casilla_15_tramos.map(t => ({
           origen: t.origen,
           destino: t.destino,
@@ -91,6 +116,13 @@ export default function Index() {
         })),
         casilla_15_moneda: 'US$',
         puerto_carga: formData.puerto_carga,
+        
+        // Optional fields
+        casilla_13_volumen: formData.casilla_13_volumen || 0,
+        casilla_16_declaracion_valor: formData.casilla_16_declaracion_valor || '',
+        casilla_18_instrucciones: formData.casilla_18_instrucciones || '',
+        casilla_19_flete_externo: formData.casilla_19_flete_externo || 0,
+        casilla_20_reembolso: formData.casilla_20_reembolso || 0,
       };
 
       const response = await fetch(CRT_PROXY_URL, {

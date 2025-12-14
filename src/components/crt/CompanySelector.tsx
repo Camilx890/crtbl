@@ -40,7 +40,7 @@ export function CompanySelector({ selectedCompany, onCompanyChange }: CompanySel
           {DEFAULT_COMPANIES.map((company) => (
             <SelectItem key={company.id} value={company.id}>
               <div className="flex flex-col items-start">
-                <span className="font-medium">{company.name}</span>
+                <span className="font-medium">{company.nombre}</span>
               </div>
             </SelectItem>
           ))}
@@ -50,7 +50,7 @@ export function CompanySelector({ selectedCompany, onCompanyChange }: CompanySel
       {selectedCompany && (
         <div className="mt-4 p-3 bg-accent/50 rounded-lg">
           <p className="text-sm text-muted-foreground">Dirección:</p>
-          <p className="text-sm font-medium text-foreground">{selectedCompany.address}</p>
+          <p className="text-sm font-medium text-foreground">{selectedCompany.direccion}</p>
         </div>
       )}
     </div>
