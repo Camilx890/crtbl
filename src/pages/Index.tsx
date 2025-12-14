@@ -12,7 +12,7 @@ import { SuccessModal } from '@/components/crt/SuccessModal';
 import { Button } from '@/components/ui/button';
 
 const N8N_WEBHOOK_URL = 'https://n8n-n8n.qenbep.easypanel.host/webhook/extract-bl-crt';
-const CRT_BACKEND_URL = 'http://72.60.13.178:8000/api/crt/generar';
+const CRT_BACKEND_URL = 'https://72.60.13.178:8000/api/crt/generar';
 
 export default function Index() {
   const [step, setStep] = useState<1 | 2>(1);
