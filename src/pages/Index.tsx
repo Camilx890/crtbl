@@ -12,7 +12,8 @@ import { SuccessModal } from '@/components/crt/SuccessModal';
 import { Button } from '@/components/ui/button';
 
 const N8N_WEBHOOK_URL = 'https://n8n-n8n.qenbep.easypanel.host/webhook/extract-bl-crt';
-const CRT_BACKEND_URL = 'https://72.60.13.178:8000/api/crt/generar';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const CRT_PROXY_URL = `${SUPABASE_URL}/functions/v1/crt-proxy`;
 
 export default function Index() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -92,7 +93,7 @@ export default function Index() {
         puerto_carga: formData.puerto_carga,
       };
 
-      const response = await fetch(CRT_BACKEND_URL, {
+      const response = await fetch(CRT_PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
