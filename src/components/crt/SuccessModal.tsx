@@ -18,7 +18,7 @@ interface SuccessModalProps {
 
 export function SuccessModal({ isOpen, filename, numeroCrt, onGenerateAnother, onNewBL }: SuccessModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onGenerateAnother(); }}>
       <DialogContent className="sm:max-w-md bg-card border-border" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader className="text-center">
           <div className="mx-auto w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mb-4">
