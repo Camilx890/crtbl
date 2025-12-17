@@ -1,11 +1,13 @@
 export interface BLExtractedData {
-  casilla_1_remitente: string;
+  casilla_1_remitente: string; // Nombre + dirección combinados con \n
   casilla_2_numero_bl: string;
-  casilla_4_destinatario: string;
+  casilla_4_destinatario: string; // Nombre + dirección combinados con \n
   casilla_11_descripcion: string;
   casilla_12_peso_bruto: number;
   _metadata?: {
+    shipper_name?: string;
     shipper_address?: string;
+    consignee_name?: string;
     consignee_address?: string;
     container_number?: string;
     container_type?: string;
