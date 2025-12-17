@@ -152,7 +152,7 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
               <textarea
                 value={formData.casilla_1_remitente}
                 onChange={(e) => updateField('casilla_1_remitente', e.target.value)}
-                rows={2}
+                rows={4}
                 className={`input-field resize-none ${errors.casilla_1_remitente ? 'border-destructive' : ''}`}
               />
               <p className="helper-text">Auto-extraído del BL</p>
@@ -176,7 +176,7 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
               <textarea
                 value={formData.casilla_4_destinatario}
                 onChange={(e) => updateField('casilla_4_destinatario', e.target.value)}
-                rows={2}
+                rows={4}
                 className={`input-field resize-none ${errors.casilla_4_destinatario ? 'border-destructive' : ''}`}
               />
               <p className="helper-text">Auto-extraído del BL - Se replica en casillas 6 y 9</p>
