@@ -1,11 +1,12 @@
-import { Building2 } from 'lucide-react';
-import { TransportCompany, DEFAULT_COMPANIES } from '@/types/crt';
+import { Building2, Star } from 'lucide-react';
+import { TransportCompany, DEFAULT_COMPANIES, TransportCompanyWithPriority } from '@/types/crt';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from '@/components/ui/select';
 
 interface CompanySelectorProps {
@@ -14,6 +15,9 @@ interface CompanySelectorProps {
 }
 
 export function CompanySelector({ selectedCompany, onCompanyChange }: CompanySelectorProps) {
+  const priorityCompanies = DEFAULT_COMPANIES.filter(c => c.priority);
+  const otherCompanies = DEFAULT_COMPANIES.filter(c => !c.priority);
+
   return (
     <div className="card-elevated p-6 mb-6 animate-fade-in">
       <div className="flex items-center gap-3 mb-4">
@@ -36,11 +40,25 @@ export function CompanySelector({ selectedCompany, onCompanyChange }: CompanySel
         <SelectTrigger className="w-full h-12 bg-background">
           <SelectValue placeholder="Selecciona una empresa" />
         </SelectTrigger>
-        <SelectContent className="bg-popover border border-border z-50">
-          {DEFAULT_COMPANIES.map((company) => (
+        <SelectContent className="bg-popover border border-border z-50 max-h-80">
+          {/* Empresas prioritarias */}
+          {priorityCompanies.map((company) => (
+            <SelectItem key={company.id} value={company.id}>
+              <div className="flex items-center gap-2">
+                <Star className="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" />
+                <span className="font-medium truncate">{company.nombre}</span>
+              </div>
+            </SelectItem>
+          ))}
+          
+          {/* Separador visual */}
+          <SelectSeparator className="my-2" />
+          
+          {/* Resto de empresas */}
+          {otherCompanies.map((company) => (
             <SelectItem key={company.id} value={company.id}>
               <div className="flex flex-col items-start">
-                <span className="font-medium">{company.nombre}</span>
+                <span className="font-medium truncate">{company.nombre}</span>
               </div>
             </SelectItem>
           ))}
