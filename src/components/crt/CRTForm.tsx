@@ -176,7 +176,7 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
               <textarea
                 value={formData.casilla_4_destinatario}
                 onChange={(e) => updateField('casilla_4_destinatario', e.target.value)}
-                rows={4}
+                rows={5}
                 className={`input-field resize-none ${errors.casilla_4_destinatario ? 'border-destructive' : ''}`}
               />
               <p className="helper-text">Auto-extraído del BL - Se replica en casillas 6 y 9</p>
@@ -188,7 +188,7 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
               <textarea
                 value={formData.casilla_11_descripcion}
                 onChange={(e) => updateField('casilla_11_descripcion', e.target.value)}
-                rows={3}
+                rows={6}
                 className={`input-field resize-none ${errors.casilla_11_descripcion ? 'border-destructive' : ''}`}
               />
               <p className="helper-text">Auto-extraído del BL</p>
@@ -229,7 +229,7 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
               <textarea
                 value={formData.casilla_3_transportador}
                 onChange={(e) => updateField('casilla_3_transportador', e.target.value)}
-                rows={4}
+                rows={5}
                 className={`input-field resize-none ${errors.casilla_3_transportador ? 'border-destructive' : ''}`}
               />
               <p className="helper-text">Auto-llenado según empresa - Casilla 23 solo usa el nombre</p>
