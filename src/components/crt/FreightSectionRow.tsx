@@ -74,21 +74,25 @@ export function FreightSectionRow({ section, canDelete, onChange, onDelete, erro
       
       <div className="w-full sm:w-32">
         <label className="label-field flex items-center gap-2">
-          Monto (US$)
-          {section.monto !== undefined && section.monto >= 0 && (
-            <CheckCircle2 className="w-4 h-4 text-green-500" />
-          )}
+          Monto (US$) *
+          {renderFieldStatus(!!errors.monto, section.monto > 0)}
         </label>
         <input
           type="number"
-          min="0"
+          min="0.01"
           step="0.01"
           value={section.monto || ''}
           onChange={(e) => onChange({ ...section, monto: parseFloat(e.target.value) || 0 })}
           placeholder="0.00"
-          className="input-field"
+          className={getInputClass(!!errors.monto)}
+          data-error={!!errors.monto}
         />
-        <p className="text-xs text-muted-foreground mt-1">Puede ser 0</p>
+        {errors.monto && (
+          <p className="text-sm text-destructive mt-1 flex items-center gap-1">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            {errors.monto}
+          </p>
+        )}
       </div>
 
       {canDelete && (
