@@ -201,7 +201,10 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
         newErrors[`tramo_${index}_destino`] = 'Destino requerido';
         errorList.push({ field: `tramo_${index}_destino`, message: 'Destino requerido', label: `Tramo ${index + 1}: Destino` });
       }
-      // Note: monto can be 0, so we don't validate it as required
+      if (!tramo.monto || tramo.monto <= 0) {
+        newErrors[`tramo_${index}_monto`] = 'Monto debe ser mayor a 0';
+        errorList.push({ field: `tramo_${index}_monto`, message: 'Monto debe ser mayor a 0', label: `Tramo ${index + 1}: Monto` });
+      }
     });
 
     setErrors(newErrors);
@@ -286,16 +289,8 @@ export function CRTForm({ extractedData, onSubmit, isSubmitting }: CRTFormProps)
         </Alert>
       )}
 
-      {/* Missing fields counter */}
-      {missingCount > 0 && !showValidationAlert && (
-        <div className="flex items-center justify-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-600 dark:text-amber-400">
-          <AlertCircle className="w-4 h-4" />
-          <span className="text-sm font-medium">{missingCount} campo{missingCount !== 1 ? 's' : ''} pendiente{missingCount !== 1 ? 's' : ''}</span>
-        </div>
-      )}
-
       {/* Form complete indicator */}
-      {isFormComplete && (
+      {isFormComplete && !showValidationAlert && (
         <div className="flex items-center justify-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-600 dark:text-green-400">
           <CheckCircle2 className="w-4 h-4" />
           <span className="text-sm font-medium">Todos los campos obligatorios completados</span>
