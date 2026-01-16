@@ -70,7 +70,14 @@ export interface TransportCompanyWithPriority extends TransportCompany {
 }
 
 export const DEFAULT_COMPANIES: TransportCompanyWithPriority[] = [
-  // ⭐ EMPRESAS PRIORITARIAS (5 primeras)
+  // ⭐ EMPRESAS PRIORITARIAS (6 primeras)
+  {
+    id: 'transporte-coveiztruck',
+    nombre: 'TRANSPORTE COVEIZTRUCK S.R.L',
+    direccion: 'CALLE COLOMBIA, NRO. S/N ZONA CATACHILLA N-351354 C-51028002100, ELALTO - LA PAZ, BOLIVIA',
+    nombreCompleto: 'TRANSPORTE COVEIZTRUCK S.R.L\nCALLE COLOMBIA, NRO. S/N ZONA CATACHILLA N-351354 C-51028002100, ELALTO - LA PAZ, BOLIVIA',
+    priority: true,
+  },
   {
     id: 'cbm',
     nombre: 'CBM SERVICIOS INTEGRALES SPA',
