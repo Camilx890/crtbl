@@ -76,7 +76,7 @@ export function ProcessingIndicator({ stage }: ProcessingIndicatorProps) {
           </p>
           {elapsed >= 5 && (
             <p className="text-xs text-muted-foreground">
-              Tiempo: {elapsed}s (máximo 30s)
+              Tiempo: {elapsed}s (máximo 60s)
             </p>
           )}
         </div>
