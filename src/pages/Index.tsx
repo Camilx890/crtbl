@@ -15,7 +15,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const CRT_PROXY_URL = `${SUPABASE_URL}/functions/v1/crt-proxy`;
 
 // Timeout for BL extraction (30 seconds)
-const EXTRACTION_TIMEOUT = 30000;
+const EXTRACTION_TIMEOUT = 60000;
 
 export default function Index() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -75,7 +75,7 @@ export default function Index() {
       
       if (error instanceof Error && error.name === 'AbortError') {
         toast.error('Tiempo de espera agotado', {
-          description: 'La extracción tardó más de 30 segundos. Intenta con un archivo más pequeño.',
+          description: 'La extracción tardó más de 60 segundos. Intenta con un archivo más pequeño.',
         });
       } else {
         toast.error('Error al procesar el BL', {
